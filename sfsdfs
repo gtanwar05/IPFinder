@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Code Editor (No CDN)</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      font-family: monospace;
+      background-color: #1e1e1e;
+      color: #ccc;
+    }
+
+    .top-bar {
+      background-color: #2d2d2d;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      color: #fff;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      background-color: #007acc;
+      color: white;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    button.delete {
+      background-color: #d63636;
+    }
+
+    button:hover {
+      opacity: 0.85;
+    }
+
+    .editor-container {
+      flex-grow: 1;
+      overflow: auto;
+      background: #1e1e1e;
+      font-family: monospace;
+    }
+
+    .line {
+      display: flex;
+      width: 100%;
+    }
+
+    .line-number {
+      width: 40px;
+      background: #2d2d2d;
+      color: #888;
+      padding: 0 5px;
+      text-align: right;
+      user-select: none;
+    }
+
+    .code-line {
+      flex-grow: 1;
+      padding-left: 10px;
+      white-space: pre-wrap;
+      outline: none;
+    }
+
+    .code-line:focus {
+      background: #2a2a2a;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="top-bar">
+    <div id="clock">🗓️</div>
+    <div class="buttons">
+      <button onclick="saveCode()">💾 Save</button>
+      <button class="delete" onclick="deleteCode()">🗑️ Delete</button>
+    </div>
+  </div>
+
+  <div class="editor-container" id="editorContainer"></div>
+
+  <script>
+    const editorContainer = document.getElementById('editorContainer');
+
+    function renderEditorFromText(text) {
+      editorContainer.innerHTML = ''; // clear
+      const lines = text.split('\n');
+      lines.forEach((line, index) => {
+        const lineDiv = document.createElement('div');
+        lineDiv.className = 'line';
+
+        const lineNumber = document.createElement('div');
+        lineNumber.className = 'line-number';
+        lineNumber.textContent = String(index + 1).padStart(2, '0');
+
+        const codeLine = document.createElement('div');
+        codeLine.className = 'code-line';
+        codeLine.contentEditable = true;
+        codeLine.innerText = line;
+        codeLine.addEventListener('input', syncBackToStorage);
+
+        lineDiv.appendChild(lineNumber);
+        lineDiv.appendChild(codeLine);
+        editorContainer.appendChild(lineDiv);
+      });
+    }
+
+    function getEditorText() {
+      const codeLines = Array.from(document.querySelectorAll('.code-line'));
+      return codeLines.map(line => line.innerText).join('\n');
+    }
+
+    function syncBackToStorage() {
+      localStorage.setItem('userCode', getEditorText());
+    }
+
+    function saveCode() {
+      localStorage.setItem('userCode', getEditorText());
+      alert('✅ Code saved locally!');
+    }
+
+    function deleteCode() {
+      if (confirm('⚠️ Are you sure you want to delete this code?')) {
+        localStorage.removeItem('userCode');
+        renderEditorFromText('// Start coding here...');
+      }
+    }
+
+    function updateClock() {
+      const now = new Date();
+      const months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+      let hours = now.getHours();
+      const minutes = now.getMinutes().toString().padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12 || 12;
+      const clockText = `${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()} ${hours}:${minutes} ${ampm}`;
+      document.getElementById('clock').innerText = clockText;
+    }
+
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Load existing or default
+    const saved = localStorage.getItem('userCode');
+    renderEditorFromText(saved || '// Start coding here...');
+  </script>
+
+</body>
+</html>
