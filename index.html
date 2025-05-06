@@ -1,1 +1,34 @@
-<h1>DhoonBharti<h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find Public IP</title>
+    <!-- Link to Google Fonts for Poppins font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body style="margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center; background-color: #f0f0f0; font-family: 'Poppins', sans-serif;">
+
+    <div style="text-align: center; font-size: 32px; font-weight: bold; color: #333;">
+        <p>Your Public IP Address </p>
+        <div id="ip-address">Loading...</div>
+    </div>
+
+    <script>
+        // Function to fetch the user's public IP using an external service
+        async function getPublicIP() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                document.getElementById('ip-address').textContent = data.ip;
+            } catch (error) {
+                document.getElementById('ip-address').textContent = 'Unable to fetch IP';
+            }
+        }
+
+        // Call the function when the page loads
+        window.onload = getPublicIP;
+    </script>
+
+</body>
+</html>
